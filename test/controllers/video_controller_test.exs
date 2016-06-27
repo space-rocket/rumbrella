@@ -1,5 +1,10 @@
 defmodule Rumbl.VideoControllerTest do
   use Rumbl.ConnCase
+  alias Rumbl.Video
+  @valid_attrs %{url: "http://youtu.be", title: "vid", description: "a vid"}
+  @invalid_attrs %{title: "invalid"}
+
+  defp video_count(query), do: Repo.one(from v in query, select: count(v.id))
 
   setup %{conn: conn} = config do
     if username =config[:login_as] do
@@ -21,4 +26,40 @@ defmodule Rumbl.VideoControllerTest do
     assert String.contains?(conn.resp_body, user_video.title)
     refute String.contains?(conn.resp_body, other_video.title)
   end
+
+  @tag login_as: "max"
+  test "creates user video and redirects", %{conn: conn, user: user} do
+    conn = post conn, video_path(conn, :create), video: @valid_attrs
+    assert redirected_to(conn) == video_path(conn, :index)
+    assert Repo.get_by!(Video, @valid_attrs).user_id == user.id
+  end
+
+  @tag login_as: "max"
+  test "does not create video and renders errors when invalid", %{conn: conn} do
+    count_before = video_count(Video)
+    conn = post conn, video_path(conn, :create), video: @invalid_attrs
+    assert html_response(conn, 200) =~ "check the errors"
+    assert video_count(Video) == count_before
+  end
+
+  @tag login_as: "max"
+  test "authorizes actions against access by other users",
+    %{user: owner, conn: conn} do
+      video = insert_video(owner, @valid_attrs)
+      non_owner = insert_user(username: "sneaky")
+      conn = assign(conn, :current_user, non_owner)
+
+      assert_error_sent :not_found, fn ->
+        get(conn, video_path(conn, :show, video))
+      end
+      assert_error_sent :not_found, fn ->
+        get(conn, video_path(conn, :edit, video))
+      end
+      assert_error_sent :not_found, fn ->
+        put(conn, video_path(conn, :update, video, video: @valid_attrs))
+      end
+      assert_error_sent :not_found, fn ->
+        delete(conn, video_path(conn, :delete, video))
+      end
+    end
 end
