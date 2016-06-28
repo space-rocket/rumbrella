@@ -1171,13 +1171,22 @@ window.addEventListener('click', function (event) {
 
 require("phoenix_html");
 
-var _player = require("./player");
+var _socket = require("./socket");
 
-var _player2 = _interopRequireDefault(_player);
+var _socket2 = _interopRequireDefault(_socket);
+
+var _video = require("./video");
+
+var _video2 = _interopRequireDefault(_video);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// Brunch automatically concatenates all files in your
+// Import local files
+//
+// Local files can be imported directly using relative
+// paths "./socket" or full ones "web/static/js/socket".
+
+_video2.default.init(_socket2.default, document.getElementById("video")); // Brunch automatically concatenates all files in your
 // watched paths. Those paths can be configured at
 // config.paths.watched in "brunch-config.js".
 //
@@ -1190,24 +1199,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 //
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
-
-var video = document.getElementById("video");
-
-// Import local files
-//
-// Local files can be imported directly using relative
-// paths "./socket" or full ones "web/static/js/socket".
-
-// import socket from "./socket"
-
-// Import video player
-
-
-if (video) {
-	_player2.default.init(video.id, video.getAttribute("data-player-id"), function () {
-		console.log("player ready!");
-	});
-}
 });
 
 ;require.register("web/static/js/player", function(exports, require, module) {
@@ -1328,6 +1319,45 @@ channel.join().receive("ok", function (resp) {
 });
 
 exports.default = socket;
+});
+
+;require.register("web/static/js/video", function(exports, require, module) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _player = require("./player");
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Video = {
+	init: function init(socket, element) {
+		var _this = this;
+
+		if (!element) {
+			return;
+		}
+		var playerId = element.getAttribute("data-player-id");
+		var videoId = element.getAttribute("data-id");
+		socket.connect();
+		_player2.default.init(element.id, playerId, function () {
+			_this.onReady(videoId, socket);
+		});
+	},
+	onReady: function onReady(videoId, socket) {
+		var msgContainer = document.getElementById("msg-container");
+		var msgInput = document.getElementById("msg-input");
+		var postButton = document.getElementById("msg-submit");
+		var vidChannel = socket.channel("videos:" + videoId);
+		// TODO join the vidChannel
+	}
+};
+
+exports.default = Video;
 });
 
 ;require('web/static/js/app');
