@@ -1356,7 +1356,12 @@ var Video = {
 		var msgInput = document.getElementById("msg-input");
 		var postButton = document.getElementById("msg-submit");
 		var vidChannel = socket.channel("videos:" + videoId);
-		// TODO join the vidChannel
+
+		vidChannel.join().recieve("ok", function (resp) {
+			return console.log("joined the video channel");
+		}).recieve("error", function (reason) {
+			return console.log("join failed", reason);
+		});
 	}
 };
 
