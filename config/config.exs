@@ -9,7 +9,7 @@ use Mix.Config
 config :rumbl, Rumbl.Endpoint,
   url: [host: "localhost"],
   root: Path.dirname(__DIR__),
-  secret_key_base: "A0KYFk6fZ6hTGJEqSFXevsYjTyfReZtTIe8FbNu5/RySn4+OaqE15/vzI4dQkJIA",
+  secret_key_base: "zKWWqsSbODyWe86Rd7E/rpu6U/90UkaZX8aCHDrRzj/nUvh7cY/8Bj+/CE+lAh9B",
   render_errors: [accepts: ~w(html json)],
   pubsub: [name: Rumbl.PubSub,
            adapter: Phoenix.PubSub.PG2]

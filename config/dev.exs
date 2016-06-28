@@ -11,7 +11,7 @@ config :rumbl, Rumbl.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
+  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin"]]
 
 # Watch static and templates for browser reloading.
 config :rumbl, Rumbl.Endpoint,
@@ -40,3 +40,4 @@ config :rumbl, Rumbl.Repo,
   database: "rumbl_devJun27th2016",
   hostname: "localhost",
   pool_size: 10
+

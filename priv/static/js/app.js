@@ -9,10 +9,32 @@
   var aliases = {};
   var has = ({}).hasOwnProperty;
 
-  var expRe = /^\.\.?(\/|$)/;
+  var endsWith = function(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+  };
+
+  var _cmp = 'components/';
+  var unalias = function(alias, loaderPath) {
+    var start = 0;
+    if (loaderPath) {
+      if (loaderPath.indexOf(_cmp) === 0) {
+        start = _cmp.length;
+      }
+      if (loaderPath.indexOf('/', start) > 0) {
+        loaderPath = loaderPath.substring(start, loaderPath.indexOf('/', start));
+      }
+    }
+    var result = aliases[alias + '/index.js'] || aliases[loaderPath + '/deps/' + alias + '/index.js'];
+    if (result) {
+      return _cmp + result.substring(0, result.length - '.js'.length);
+    }
+    return alias;
+  };
+
+  var _reg = /^\.\.?(\/|$)/;
   var expand = function(root, name) {
     var results = [], part;
-    var parts = (expRe.test(name) ? root + '/' + name : name).split('/');
+    var parts = (_reg.test(name) ? root + '/' + name : name).split('/');
     for (var i = 0, length = parts.length; i < length; i++) {
       part = parts[i];
       if (part === '..') {
@@ -36,122 +58,71 @@
   };
 
   var initModule = function(name, definition) {
-    var hot = null;
-    hot = hmr && hmr.createHot(name);
-    var module = {id: name, exports: {}, hot: hot};
+    var module = {id: name, exports: {}};
     cache[name] = module;
     definition(module.exports, localRequire(name), module);
     return module.exports;
   };
 
-  var expandAlias = function(name) {
-    return aliases[name] ? expandAlias(aliases[name]) : name;
-  };
-
-  var _resolve = function(name, dep) {
-    return expandAlias(expand(dirname(name), dep));
-  };
-
   var require = function(name, loaderPath) {
+    var path = expand(name, '.');
     if (loaderPath == null) loaderPath = '/';
-    var path = expandAlias(name);
+    path = unalias(name, loaderPath);
 
     if (has.call(cache, path)) return cache[path].exports;
     if (has.call(modules, path)) return initModule(path, modules[path]);
 
-    throw new Error("Cannot find module '" + name + "' from '" + loaderPath + "'");
+    var dirIndex = expand(path, './index');
+    if (has.call(cache, dirIndex)) return cache[dirIndex].exports;
+    if (has.call(modules, dirIndex)) return initModule(dirIndex, modules[dirIndex]);
+
+    throw new Error('Cannot find module "' + name + '" from '+ '"' + loaderPath + '"');
   };
 
   require.alias = function(from, to) {
     aliases[to] = from;
   };
 
-  var extRe = /\.[^.\/]+$/;
-  var indexRe = /\/index(\.[^\/]+)?$/;
-  var addExtensions = function(bundle) {
-    if (extRe.test(bundle)) {
-      var alias = bundle.replace(extRe, '');
-      if (!has.call(aliases, alias) || aliases[alias].replace(extRe, '') === alias + '/index') {
-        aliases[alias] = bundle;
-      }
-    }
-
-    if (indexRe.test(bundle)) {
-      var iAlias = bundle.replace(indexRe, '');
-      if (!has.call(aliases, iAlias)) {
-        aliases[iAlias] = bundle;
-      }
-    }
-  };
-
   require.register = require.define = function(bundle, fn) {
     if (typeof bundle === 'object') {
       for (var key in bundle) {
         if (has.call(bundle, key)) {
-          require.register(key, bundle[key]);
+          modules[key] = bundle[key];
         }
       }
     } else {
       modules[bundle] = fn;
-      delete cache[bundle];
-      addExtensions(bundle);
     }
   };
 
   require.list = function() {
-    var list = [];
+    var result = [];
     for (var item in modules) {
       if (has.call(modules, item)) {
-        list.push(item);
+        result.push(item);
       }
     }
-    return list;
+    return result;
   };
 
-  var hmr = globals._hmr && new globals._hmr(_resolve, require, modules, cache);
-  require._cache = cache;
-  require.hmr = hmr && hmr.wrap;
   require.brunch = true;
+  require._cache = cache;
   globals.require = require;
 })();
-
 (function() {
-var global = window;
-var __makeRelativeRequire = function(require, mappings, pref) {
-  var none = {};
-  var tryReq = function(name, pref) {
-    var val;
-    try {
-      val = require(pref + '/node_modules/' + name);
-      return val;
-    } catch (e) {
-      if (e.toString().indexOf('Cannot find module') === -1) {
-        throw e;
-      }
+    var global = window;
+    var __shims = {assert: ({}),buffer: ({}),child_process: ({}),cluster: ({}),crypto: ({}),dgram: ({}),dns: ({}),events: ({}),fs: ({}),http: ({}),https: ({}),net: ({}),os: ({}),path: ({}),punycode: ({}),querystring: ({}),readline: ({}),repl: ({}),string_decoder: ({}),tls: ({}),tty: ({}),url: ({}),util: ({}),vm: ({}),zlib: ({}),process: ({"env":{}})};
+    var process = __shims.process;
 
-      if (pref.indexOf('node_modules') !== -1) {
-        var s = pref.split('/');
-        var i = s.lastIndexOf('node_modules');
-        var newPref = s.slice(0, i).join('/');
-        return tryReq(name, newPref);
+    var __makeRequire = function(r, __brmap) {
+      return function(name) {
+        if (__brmap[name] !== undefined) name = __brmap[name];
+        name = name.replace(".js", "");
+        return ["assert","buffer","child_process","cluster","crypto","dgram","dns","events","fs","http","https","net","os","path","punycode","querystring","readline","repl","string_decoder","tls","tty","url","util","vm","zlib","process"].indexOf(name) === -1 ? r(name) : __shims[name];
       }
-    }
-    return none;
-  };
-  return function(name) {
-    if (name in mappings) name = mappings[name];
-    if (!name) return;
-    if (name[0] !== '.' && pref) {
-      var val = tryReq(name, pref);
-      if (val !== none) return val;
-    }
-    return require(name);
-  }
-};
-
-require.register("phoenix/priv/static/phoenix.js", function(exports, require, module) {
-  require = __makeRelativeRequire(require, {}, "phoenix");
-  (function() {
+    };
+  require.register('phoenix', function(exports,req,module){
+    var require = __makeRequire((function(n) { return req(n.replace('./', 'phoenix/')); }), {});
     (function(exports){
 "use strict";
 
@@ -1178,40 +1149,30 @@ var Timer = function () {
 
 
 })(typeof(exports) === "undefined" ? window.Phoenix = window.Phoenix || {} : exports);
-  })();
-});
 
-require.register("phoenix_html/priv/static/phoenix_html.js", function(exports, require, module) {
-  require = __makeRelativeRequire(require, {}, "phoenix_html");
-  (function() {
+  });
+require.register('phoenix_html', function(exports,req,module){
+    var require = __makeRequire((function(n) { return req(n.replace('./', 'phoenix_html/')); }), {});
     'use strict';
 
-// Although ^=parent is not technically correct,
-// we need to use it in order to get IE8 support.
-var elements = document.querySelectorAll('[data-submit^=parent]');
-var len = elements.length;
-
-for (var i = 0; i < len; ++i) {
-  elements[i].addEventListener('click', function (event) {
-    var message = this.getAttribute("data-confirm");
+window.addEventListener('click', function (event) {
+  if(event.target && event.target.matches('a[data-submit=parent]')) {
+    var message = event.target.getAttribute('data-confirm');
     if (message === null || confirm(message)) {
-      this.parentNode.submit();
+      event.target.parentNode.submit();
     };
     event.preventDefault();
     return false;
-  }, false);
-}
-
-;
-  })();
-});
-require.register("web/static/js/app.js", function(exports, require, module) {
+  }
+}, false);
+  });
+})();require.register("web/static/js/app", function(exports, require, module) {
 "use strict";
 
 require("phoenix_html");
 });
 
-;require.register("web/static/js/socket.js", function(exports, require, module) {
+;require.register("web/static/js/socket", function(exports, require, module) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1266,14 +1227,6 @@ var socket = new _phoenix.Socket("/socket", { params: { token: window.userToken 
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 
-/***
- * Excerpted from "Programming Phoenix",
- * published by The Pragmatic Bookshelf.
- * Copyrights apply to this code. It may not be used to create training material,
- * courses, books, articles, and the like. Contact us if you are in doubt.
- * We make no guarantees that this code is fit for any purpose.
- * Visit http://www.pragmaticprogrammer.com/titles/phoenix for more book information.
-***/
 // NOTE: The contents of this file will only be executed if
 // you uncomment its entry in "web/static/js/app.js".
 
@@ -1292,10 +1245,5 @@ channel.join().receive("ok", function (resp) {
 exports.default = socket;
 });
 
-;require.alias("phoenix/priv/static/phoenix.js", "phoenix");
-require.alias("phoenix_html/priv/static/phoenix_html.js", "phoenix_html");require.register("___globals___", function(exports, require, module) {
-  
-});})();require('___globals___');
-
-require('web/static/js/app');
+;require('web/static/js/app');
 //# sourceMappingURL=app.js.map
