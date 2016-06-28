@@ -11,6 +11,7 @@ defmodule Rumbl.VideoChannel do
 			body: params["body"],
 			at: params["at"]
 		}
-		{:replay, :ok, socket}
+
+		{:reply, :ok, socket}
 	end
 end
