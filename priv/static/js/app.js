@@ -1357,9 +1357,14 @@ var Video = {
 		var postButton = document.getElementById("msg-submit");
 		var vidChannel = socket.channel("videos:" + videoId);
 
-		vidChannel.join().recieve("ok", function (resp) {
-			return console.log("joined the video channel");
-		}).recieve("error", function (reason) {
+		vidChannel.on("ping", function (_ref) {
+			var count = _ref.count;
+			return console.log("PING", count);
+		});
+
+		vidChannel.join().receive("ok", function (resp) {
+			return console.log("joined the video channel", resp);
+		}).receive("error", function (reason) {
 			return console.log("join failed", reason);
 		});
 	}
