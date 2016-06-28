@@ -1352,14 +1352,23 @@ var Video = {
 		});
 	},
 	onReady: function onReady(videoId, socket) {
+		var _this2 = this;
+
 		var msgContainer = document.getElementById("msg-container");
 		var msgInput = document.getElementById("msg-input");
 		var postButton = document.getElementById("msg-submit");
 		var vidChannel = socket.channel("videos:" + videoId);
 
-		vidChannel.on("ping", function (_ref) {
-			var count = _ref.count;
-			return console.log("PING", count);
+		postButton.addEventListener("click", function (e) {
+			var payload = { body: msgInput.value, at: _player2.default.getCurrentTime() };
+			vidChannel.push("new_annotation", payload).receive("error", function (e) {
+				return console.log(e);
+			});
+			msgInput.value = "";
+		});
+
+		vidChannel.on("new_annotation", function (resp) {
+			_this2.renderAnnotation(msgContainer, resp);
 		});
 
 		vidChannel.join().receive("ok", function (resp) {
@@ -1367,6 +1376,21 @@ var Video = {
 		}).receive("error", function (reason) {
 			return console.log("join failed", reason);
 		});
+	},
+	esc: function esc(str) {
+		var div = document.createElement("div");
+		div.appendChild(document.createTextNode(str));
+		return div.innerHTML;
+	},
+	renderAnnotation: function renderAnnotation(msgContainer, _ref) {
+		var user = _ref.user;
+		var body = _ref.body;
+		var at = _ref.at;
+
+		var template = document.createElement("div");
+		template.innerHTML = "\n\t\t<a href=\"#\" data-seek=\"" + this.esc(at) + "\">\n\t\t\t<b>" + this.esc(user.username) + "</b>: " + this.esc(body) + "\n\t\t</a>\n\t\t";
+		msgContainer.appendChild(template);
+		msgContainer.scrollTop = msgContainer.scrollHeight;
 	}
 };
 
