@@ -1242,7 +1242,7 @@ var Player = {
 		return Math.floor(this.player.getCurrentTime() * 1000);
 	},
 	seekTo: function seekTo(millsec) {
-		return this.player.seekTO(millsec / 1000);
+		return this.player.seekTo(millsec / 1000);
 	}
 };
 exports.default = Player;
@@ -1369,6 +1369,15 @@ var Video = {
 
 		vidChannel.on("new_annotation", function (resp) {
 			_this2.renderAnnotation(msgContainer, resp);
+		});
+
+		msgContainer.addEventListener("click", function (e) {
+			e.preventDefault();
+			var seconds = e.target.getAttribute("data-seek") || e.target.parentNode.getAttribute("data-seek");
+			if (!seconds) {
+				return;
+			}
+			_player2.default.seekTo(seconds);
 		});
 
 		vidChannel.join().receive("ok", function (resp) {
