@@ -64,6 +64,7 @@ let Video = {
 		setTimeout(() => {
 			let ctime = Player.getCurrentTime()
 			let remaining = this.renderAtTime(annotations, ctime, msgContainer)
+			this.scheduleMessages(msgContainer, remaining)
 		}, 1000)
 	},
 	renderAtTime(annotations, seconds, msgContainer){

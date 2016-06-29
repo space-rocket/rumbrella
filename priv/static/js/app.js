@@ -1407,6 +1407,7 @@ var Video = {
 		setTimeout(function () {
 			var ctime = _player2.default.getCurrentTime();
 			var remaining = _this3.renderAtTime(annotations, ctime, msgContainer);
+			_this3.scheduleMessages(msgContainer, remaining);
 		}, 1000);
 	},
 	renderAtTime: function renderAtTime(annotations, seconds, msgContainer) {
