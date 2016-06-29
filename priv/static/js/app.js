@@ -1371,12 +1371,8 @@ var Video = {
 			_this2.renderAnnotation(msgContainer, resp);
 		});
 
-		vidChannel.join().receive("ok", function (_ref) {
-			var annotations = _ref.annotations;
-
-			annotations.forEach(function (ann) {
-				return _this2.renderAnnotation(msgContainer, ann);
-			});
+		vidChannel.join().receive("ok", function (resp) {
+			_this2.scheduleMessages(msgContainer, resp.annotations);
 		}).receive("error", function (reason) {
 			return console.log("join failed", reason);
 		});
@@ -1386,15 +1382,40 @@ var Video = {
 		div.appendChild(document.createTextNode(str));
 		return div.innerHTML;
 	},
-	renderAnnotation: function renderAnnotation(msgContainer, _ref2) {
-		var user = _ref2.user;
-		var body = _ref2.body;
-		var at = _ref2.at;
+	renderAnnotation: function renderAnnotation(msgContainer, _ref) {
+		var user = _ref.user;
+		var body = _ref.body;
+		var at = _ref.at;
 
 		var template = document.createElement("div");
-		template.innerHTML = "\n\t\t<a href=\"#\" data-seek=\"" + this.esc(at) + "\">\n\t\t\t<b>" + this.esc(user.username) + "</b>: " + this.esc(body) + "\n\t\t</a>\n\t\t";
+		template.innerHTML = "\n\t\t<a href=\"#\" data-seek=\"" + this.esc(at) + "\">\n\t\t\t[" + this.formatTime(at) + "]\n\t\t\t<b>" + this.esc(user.username) + "</b>: " + this.esc(body) + "\n\t\t</a>\n\t\t";
 		msgContainer.appendChild(template);
 		msgContainer.scrollTop = msgContainer.scrollHeight;
+	},
+	scheduleMessages: function scheduleMessages(msgContainer, annotations) {
+		var _this3 = this;
+
+		setTimeout(function () {
+			var ctime = _player2.default.getCurrentTime();
+			var remaining = _this3.renderAtTime(annotations, ctime, msgContainer);
+		}, 1000);
+	},
+	renderAtTime: function renderAtTime(annotations, seconds, msgContainer) {
+		var _this4 = this;
+
+		return annotations.filter(function (ann) {
+			if (ann.at > seconds) {
+				return true;
+			} else {
+				_this4.renderAnnotation(msgContainer, ann);
+				return false;
+			}
+		});
+	},
+	formatTime: function formatTime(at) {
+		var date = new Date(null);
+		date.setSeconds(at / 1000);
+		return date.toISOString().substr(14, 5);
 	}
 };
 

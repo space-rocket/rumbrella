@@ -29,8 +29,8 @@ let Video = {
 		})
 
 		vidChannel.join()
-			.receive("ok", ({annotations}) => {
-				annotations.forEach( ann => this.renderAnnotation(msgContainer, ann) )
+			.receive("ok", resp => {
+				this.scheduleMessages(msgContainer, resp.annotations)
 			})
 			.receive("error", reason => console.log("join failed", reason) )
 	},
@@ -45,11 +45,33 @@ let Video = {
 		let template = document.createElement("div")
 		template.innerHTML = `
 		<a href="#" data-seek="${this.esc(at)}">
+			[${this.formatTime(at)}]
 			<b>${this.esc(user.username)}</b>: ${this.esc(body)}
 		</a>
 		`
 		msgContainer.appendChild(template)
 		msgContainer.scrollTop = msgContainer.scrollHeight
+	},
+	scheduleMessages(msgContainer, annotations){
+		setTimeout(() => {
+			let ctime = Player.getCurrentTime()
+			let remaining = this.renderAtTime(annotations, ctime, msgContainer)
+		}, 1000)
+	},
+	renderAtTime(annotations, seconds, msgContainer){
+		return annotations.filter( ann => {
+			if(ann.at > seconds){
+				return true
+			} else {
+				this.renderAnnotation(msgContainer, ann)
+				return false
+			}
+		})
+	},
+	formatTime(at){
+		let date = new Date(null)
+		date.setSeconds(at / 1000)
+		return date.toISOString().substr(14, 5)
 	}
 }
 
