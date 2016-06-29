@@ -1371,8 +1371,12 @@ var Video = {
 			_this2.renderAnnotation(msgContainer, resp);
 		});
 
-		vidChannel.join().receive("ok", function (resp) {
-			return console.log("joined the video channel", resp);
+		vidChannel.join().receive("ok", function (_ref) {
+			var annotations = _ref.annotations;
+
+			annotations.forEach(function (ann) {
+				return _this2.renderAnnotation(msgContainer, ann);
+			});
 		}).receive("error", function (reason) {
 			return console.log("join failed", reason);
 		});
@@ -1382,10 +1386,10 @@ var Video = {
 		div.appendChild(document.createTextNode(str));
 		return div.innerHTML;
 	},
-	renderAnnotation: function renderAnnotation(msgContainer, _ref) {
-		var user = _ref.user;
-		var body = _ref.body;
-		var at = _ref.at;
+	renderAnnotation: function renderAnnotation(msgContainer, _ref2) {
+		var user = _ref2.user;
+		var body = _ref2.body;
+		var at = _ref2.at;
 
 		var template = document.createElement("div");
 		template.innerHTML = "\n\t\t<a href=\"#\" data-seek=\"" + this.esc(at) + "\">\n\t\t\t<b>" + this.esc(user.username) + "</b>: " + this.esc(body) + "\n\t\t</a>\n\t\t";
