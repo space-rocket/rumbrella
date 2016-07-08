@@ -1,0 +1,10 @@
+[{release,"info_sys","0.0.1","7.3",
+          [{elixir,"1.2.6","./lib/elixir-1.2.6"},
+           {stdlib,"2.8","./lib/stdlib-2.8"},
+           {kernel,"4.2","./lib/kernel-4.2"},
+           {logger,"1.2.6","./lib/logger-1.2.6"},
+           {info_sys,"0.0.1","./lib/info_sys-0.0.1"},
+           {compiler,"6.0.3","./lib/compiler-6.0.3"},
+           {iex,"1.2.6","./lib/iex-1.2.6"},
+           {sasl,"2.7","./lib/sasl-2.7"}],
+          permanent}].

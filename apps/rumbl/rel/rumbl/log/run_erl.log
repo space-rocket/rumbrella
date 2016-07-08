@@ -1,0 +1,8 @@
+run_erl [9681] Fri Jul  8 11:48:51 2016
+Args before exec of shell:
+run_erl [9681] Fri Jul  8 11:48:51 2016
+argv[0] = sh
+run_erl [9681] Fri Jul  8 11:48:51 2016
+argv[1] = -c
+run_erl [9681] Fri Jul  8 11:48:51 2016
+argv[2] = exec "/Users/Bigbassroller/Sites/space-rocket-redesign-2016/programming-phoenix/rumbrella/apps/rumbl/rel/rumbl/bin/rumbl" "foreground"

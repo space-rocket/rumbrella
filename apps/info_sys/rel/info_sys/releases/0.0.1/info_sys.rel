@@ -1,0 +1,10 @@
+{release,{"info_sys","0.0.1"},
+         {erts,"7.3"},
+         [{elixir,"1.2.6"},
+          {stdlib,"2.8"},
+          {kernel,"4.2"},
+          {logger,"1.2.6"},
+          {info_sys,"0.0.1"},
+          {compiler,"6.0.3"},
+          {iex,"1.2.6"},
+          {sasl,"2.7"}]}. 
