@@ -1,4 +1,4 @@
 # Rumbrella
 
-**TODO: Add description**
+Checkout the wiki to see how to get started and deploy to production.
 
