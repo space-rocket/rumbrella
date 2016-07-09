@@ -37,8 +37,8 @@ config :rumbl, Rumbl.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
   password: "postgres",
-  database: "rumbl_devJun27th2016",
+  database: "rumbl_dev",
   hostname: "localhost",
   pool_size: 10
 
-import_config "dev.secret.exs"
+# import_config "dev.secret.exs"
