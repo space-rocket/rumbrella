@@ -9,15 +9,32 @@ If you don't have Elixir installed, visit the [Elixir Getting Started](https://e
 
 ## Getting Started
 
-Install dependencies:
+1. Change to the rumbl app directory:
 
-`mix deps.get`
+  `cd apps/rumbl`
 
-`cd apps/rumbl && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs`
+2. Install dependencies:
 
-`npm install`
+  `mix deps.get`
 
-`mix phoenix server`
+3. Create database:
+
+  `mix ecto.create`
+
+4. Run the migration:
+
+  `mix ecto.migrate`
+  
+5. Seed the database:
+
+`mix run priv/repo/seeds.exs`
+
+6. Install JavaScript packages:
+
+  `npm install`
+
+7. Run the phoenix server:
+  `mix phoenix server`
 
 Checkout the wiki to see more on how to get started and deploy to production.
 
