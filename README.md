@@ -1,8 +1,15 @@
 # Rumbrella
 
-Make sure you have Elixir installed. Visit the [Elixir Getting Started](https://elixir-lang.org/install.html) page.
+## Prerequisites
 
-Bare essentials to getting started:
+Ensure you have Elixir installed:
+elixir --version
+
+If you don't have Elixir installed, visit the [Elixir Getting Started](https://elixir-lang.org/install.html) page.
+
+## Getting Started
+
+Install dependencies:
 `mix deps.get`
 
 `cd apps/rumbl && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs`
