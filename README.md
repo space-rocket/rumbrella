@@ -10,6 +10,7 @@ If you don't have Elixir installed, visit the [Elixir Getting Started](https://e
 ## Getting Started
 
 Install dependencies:
+
 `mix deps.get`
 
 `cd apps/rumbl && mix ecto.create && mix ecto.migrate && mix run priv/repo/seeds.exs`
