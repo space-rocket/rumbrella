@@ -1,5 +1,6 @@
 # Rumbrella
 
+Make sure you have Elixir installed. Visit [https://elixir-lang.org/install.html](the Elixir getting started page)
 Bare essentials to getting started:
 `mix deps.get`
 
